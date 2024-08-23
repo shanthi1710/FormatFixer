@@ -1,10 +1,5 @@
-import { Button } from "@/components/ui/button";
-import clsx from "clsx";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div>
-      <Button>Click me</Button>
-    </div>
-  );
+  return redirect("/Leads");
 }
