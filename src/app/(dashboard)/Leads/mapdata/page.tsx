@@ -1,25 +1,21 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { IoInformationCircleOutline } from "react-icons/io5";
+import { RiInformationOffLine } from "react-icons/ri";
 
 type Lead = {
-  firstName?: string;
-  lastName?: string;
-  linkedin?: string;
-  companyDomain?: string;
-  companyName?: string;
-  jobTitle?: string;
   [key: string]: string | undefined;
 };
 
 const SetupPage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [editableLeads, setEditableLeads] = useState<Lead[]>([]);
+  const [emptyFields, setEmptyFields] = useState<{ [key: string]: number }>({});
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -29,16 +25,43 @@ const SetupPage: React.FC = () => {
         const parsedData = JSON.parse(decodeURIComponent(data)) as Lead[];
         setLeads(parsedData);
         setEditableLeads(parsedData);
+        calculateEmptyFields(parsedData);
       } catch (error) {
         console.error("Failed to parse data:", error);
       }
     }
   }, [searchParams]);
 
+  const calculateEmptyFields = (data: Lead[]) => {
+    const counts: { [key: string]: number } = {};
+    data.forEach((lead) => {
+      Object.keys(lead).forEach((key) => {
+        if (!lead[key]?.trim()) {
+          counts[key] = (counts[key] || 0) + 1;
+        }
+      });
+    });
+    //console.log("Calculated empty fields:", counts);
+    setEmptyFields(counts);
+  };
+
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedLeads = [...editableLeads];
+    const prevValue = updatedLeads[index][field];
     updatedLeads[index] = { ...updatedLeads[index], [field]: value };
     setEditableLeads(updatedLeads);
+
+    const updatedEmptyFields = { ...emptyFields };
+    if (!value.trim()) {
+      updatedEmptyFields[field] = (updatedEmptyFields[field] || 0) + 1;
+    } else if (!prevValue?.trim()) {
+      updatedEmptyFields[field] = Math.max(
+        (updatedEmptyFields[field] || 0) - 1,
+        0
+      );
+    }
+    //console.log("Updated empty fields:", updatedEmptyFields);
+    setEmptyFields(updatedEmptyFields);
   };
 
   return (
@@ -47,7 +70,6 @@ const SetupPage: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button className="text-gray-500 hover:text-gray-800">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth="1.5"
@@ -61,7 +83,7 @@ const SetupPage: React.FC = () => {
               />
             </svg>
           </button>
-          <h1 className="text-2xl font-semibold text-gray-800">sample-data</h1>
+          <h1 className="text-2xl font-semibold text-gray-800">Sample Data</h1>
           <span className="py-1 px-3 bg-yellow-100 text-yellow-800 rounded-full text-sm">
             In Progress
           </span>
@@ -101,38 +123,51 @@ const SetupPage: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr>
+                    <th className="text-left p-2">SR</th>
                     {Object.keys(leads[0]).map((key) => (
                       <th key={key} className="text-left p-2">
-                        {key}
+                        <div className="flex items-center ">
+                          <span>{key}</span>
+                          {emptyFields[key] > 0 && (
+                            <span className="ml-2 flex items-center text-red-500 gap-1 text-sm">
+                              <RiInformationOffLine className="" />
+                              <span className="mr-1  gap-1">
+                                {emptyFields[key]}
+                              </span>
+                            </span>
+                          )}
+                        </div>
                       </th>
                     ))}
-                    <th className="text-left p-2">Data</th>
+                    <th className="text-left p-2">Edit</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {leads.map((lead, index) => (
+                  {editableLeads.map((lead, index) => (
                     <tr key={index} className="border-b">
+                      <td className="p-2 border">{index + 1}</td>
                       {Object.keys(lead).map((key) => (
                         <td key={key} className="p-2 border">
-                          {lead[key]}
+                          <div className="relative">
+                            <Input
+                              value={lead[key] || ""}
+                              onChange={(e) =>
+                                handleInputChange(index, key, e.target.value)
+                              }
+                              className={`border-none ${
+                                !lead[key]?.trim() ? "bg-red-200" : ""
+                              }`}
+                            />
+                            {!lead[key]?.trim() && (
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <span className="text-black-500">
+                                  <IoInformationCircleOutline />
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </td>
                       ))}
-                      <td className="p-2 border">
-                        <Input
-                          value={
-                            editableLeads[index]?.[
-                              Object.keys(lead)[0] as string
-                            ] || ""
-                          }
-                          onChange={(e) =>
-                            handleInputChange(
-                              index,
-                              Object.keys(lead)[0],
-                              e.target.value
-                            )
-                          }
-                        />
-                      </td>
                     </tr>
                   ))}
                 </tbody>
