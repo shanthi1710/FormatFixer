@@ -12,10 +12,23 @@ type Lead = {
   [key: string]: string | undefined;
 };
 
+const isValidURL = (url: string) => {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch (e) {
+    return false;
+  }
+};
+
 const SetupPage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [editableLeads, setEditableLeads] = useState<Lead[]>([]);
   const [emptyFields, setEmptyFields] = useState<{ [key: string]: number }>({});
+  //console.log(emptyFields);
+  const [invalidUrls, setInvalidUrls] = useState<{
+    [index: number]: { [key: string]: boolean };
+  }>({});
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -26,6 +39,7 @@ const SetupPage: React.FC = () => {
         setLeads(parsedData);
         setEditableLeads(parsedData);
         calculateEmptyFields(parsedData);
+        validateUrls(parsedData);
       } catch (error) {
         console.error("Failed to parse data:", error);
       }
@@ -45,6 +59,24 @@ const SetupPage: React.FC = () => {
     setEmptyFields(counts);
   };
 
+  const validateUrls = (data: Lead[]) => {
+    const urlErrors: { [index: number]: { [key: string]: boolean } } = {};
+    data.forEach((lead, index) => {
+      const urlErrorsForLead: { [key: string]: boolean } = {};
+      if (lead["linkdin"] && !isValidURL(lead["linkdin"])) {
+        urlErrorsForLead["linkdin"] = true;
+      }
+      if (lead["compnay domain"] && !isValidURL(lead["compnay domain"])) {
+        urlErrorsForLead["compnay domain"] = true;
+      }
+      if (Object.keys(urlErrorsForLead).length > 0) {
+        urlErrors[index] = urlErrorsForLead;
+      }
+    });
+    //console.log("Validation errors:", urlErrors);
+    setInvalidUrls(urlErrors);
+  };
+
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedLeads = [...editableLeads];
     const prevValue = updatedLeads[index][field];
@@ -60,6 +92,24 @@ const SetupPage: React.FC = () => {
         0
       );
     }
+
+    if (field === "linkdin" || field === "compnay domain") {
+      const isUrlValid = isValidURL(value);
+      const updatedInvalidUrls = { ...invalidUrls };
+      if (!isUrlValid) {
+        if (!updatedInvalidUrls[index]) updatedInvalidUrls[index] = {};
+        updatedInvalidUrls[index][field] = true;
+      } else {
+        if (updatedInvalidUrls[index]) {
+          delete updatedInvalidUrls[index][field];
+          if (Object.keys(updatedInvalidUrls[index]).length === 0) {
+            delete updatedInvalidUrls[index];
+          }
+        }
+      }
+      setInvalidUrls(updatedInvalidUrls);
+    }
+
     //console.log("Updated empty fields:", updatedEmptyFields);
     setEmptyFields(updatedEmptyFields);
   };
@@ -139,7 +189,6 @@ const SetupPage: React.FC = () => {
                         </div>
                       </th>
                     ))}
-                    <th className="text-left p-2">Edit</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,9 +207,18 @@ const SetupPage: React.FC = () => {
                                 !lead[key]?.trim() ? "bg-red-200" : ""
                               }`}
                             />
-                            {!lead[key]?.trim() && (
+                            {(!lead[key]?.trim() ||
+                              (invalidUrls[index] &&
+                                invalidUrls[index][key])) && (
                               <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <span className="text-black-500">
+                                <span
+                                  className="text-red-500"
+                                  title={
+                                    !lead[key]?.trim()
+                                      ? "This field is required."
+                                      : "Invalid URL format."
+                                  }
+                                >
                                   <IoInformationCircleOutline />
                                 </span>
                               </div>
@@ -184,7 +242,7 @@ const SetupPage: React.FC = () => {
           className="px-4 py-2 bg-blue-500 text-white rounded-md"
           disabled={editableLeads.length === 0}
         >
-          Continue
+          Verify Email - and ingnore leads with error
         </Button>
       </div>
     </div>
