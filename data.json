@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Lead List 1",
+    "exportType": "LinkedIn Sales Navigator",
+    "leadsCount": 560,
+    "createdOn": "2024-05-20",
+    "status": "In Progress",
+    "export": true
+  },
+  {
+    "name": "Lead List 2",
+    "exportType": "CSV/Excel File",
+    "leadsCount": 789,
+    "createdOn": "2024-05-20",
+    "status": "In Progress",
+    "export": true
+  },
+  {
+    "name": "Lead List 3",
+    "exportType": "LinkedIn Sales Navigator",
+    "leadsCount": 560,
+    "createdOn": "2024-05-20",
+    "status": "In Progress",
+    "export": true
+  },
+  {
+    "name": "Lead List 4",
+    "exportType": "CSV/Excel File",
+    "leadsCount": 789,
+    "createdOn": "2024-05-20",
+    "status": "In Progress",
+    "export": true
+  },
+  {
+    "name": "Lead List 5",
+    "exportType": "Hubspot",
+    "leadsCount": 562,
+    "createdOn": "2024-05-20",
+    "status": "Completed",
+    "export": true
+  },
+  {
+    "name": "Lead List 6",
+    "exportType": "CSV/Excel File",
+    "leadsCount": 789,
+    "createdOn": "2024-05-20",
+    "status": "Completed",
+    "export": true
+  }
+]

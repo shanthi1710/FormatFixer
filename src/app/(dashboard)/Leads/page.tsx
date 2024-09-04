@@ -3,52 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import Link from "next/link";
+import leadsData from "../../../../data.json";
 
 export default function LeadLists() {
-  const [leads, setLeads] = useState([
-    {
-      name: "Lead List 1",
-      exportType: "LinkedIn Sales Navigator",
-      leadsCount: 560,
-      createdOn: "20/05/2024",
-      status: "In Progress",
-    },
-    {
-      name: "Lead List 2",
-      exportType: "CSV/Excel File",
-      leadsCount: 789,
-      createdOn: "20/05/2024",
-      status: "In Progress",
-    },
-    {
-      name: "Lead List 3",
-      exportType: "LinkedIn Sales Navigator",
-      leadsCount: 560,
-      createdOn: "20/05/2024",
-      status: "In Progress",
-    },
-    {
-      name: "Lead List 4",
-      exportType: "CSV/Excel File",
-      leadsCount: 789,
-      createdOn: "20/05/2024",
-      status: "In Progress",
-    },
-    {
-      name: "Lead List 5",
-      exportType: "Hubspot",
-      leadsCount: 562,
-      createdOn: "20/05/2024",
-      status: "Completed",
-    },
-    {
-      name: "Lead List 6",
-      exportType: "CSV/Excel File",
-      leadsCount: 789,
-      createdOn: "20/05/2024",
-      status: "Completed",
-    },
-  ]);
+  const [leads, setLeads] = useState(leadsData);
 
   return (
     <div className="p-8 bg-gradient-to-r from-gray-100 to-gray-200 min-h-screen">
