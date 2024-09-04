@@ -7,46 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { RiInformationOffLine } from "react-icons/ri";
-
 type Lead = {
   [key: string]: string | undefined;
-};
-
-const isValidURLFORLinkedIn = (url: string): boolean => {
-  const regex = /^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i;
-
-  try {
-    const parsedUrl = new URL(url);
-    const isHttpOrHttps =
-      parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
-    const isLinkedInDomain = regex.test(parsedUrl.href);
-    return isHttpOrHttps && isLinkedInDomain;
-  } catch (e) {
-    return false;
-  }
-};
-
-const isValidURLFORCompanyDomain = (url: string): boolean => {
-  const regex = /^(https?:\/\/)([\w.-]+\.)?[\w-]+\.com(\/.*)?$/i;
-  if (!regex.test(url)) {
-    return false;
-  }
-
-  try {
-    const parsedUrl = new URL(url);
-    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
-  } catch (e) {
-    return false;
-  }
 };
 
 const SetupPage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [editableLeads, setEditableLeads] = useState<Lead[]>([]);
   const [emptyFields, setEmptyFields] = useState<{ [key: string]: number }>({});
-  const [invalidUrls, setInvalidUrls] = useState<{
-    [index: number]: { [key: string]: boolean };
-  }>({});
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -57,7 +25,6 @@ const SetupPage: React.FC = () => {
         setLeads(parsedData);
         setEditableLeads(parsedData);
         calculateEmptyFields(parsedData);
-        validateUrls(parsedData);
       } catch (error) {
         console.error("Failed to parse data:", error);
       }
@@ -73,27 +40,8 @@ const SetupPage: React.FC = () => {
         }
       });
     });
+    console.log("Calculated empty fields:", counts); // Debugging line
     setEmptyFields(counts);
-  };
-
-  const validateUrls = (data: Lead[]) => {
-    const urlErrors: { [index: number]: { [key: string]: boolean } } = {};
-    data.forEach((lead, index) => {
-      const urlErrorsForLead: { [key: string]: boolean } = {};
-      if (lead["linkdin"] && !isValidURLFORLinkedIn(lead["linkdin"])) {
-        urlErrorsForLead["linkdin"] = true;
-      }
-      if (
-        lead["compnay domain"] &&
-        !isValidURLFORCompanyDomain(lead["compnay domain"])
-      ) {
-        urlErrorsForLead["compnay domain"] = true;
-      }
-      if (Object.keys(urlErrorsForLead).length > 0) {
-        urlErrors[index] = urlErrorsForLead;
-      }
-    });
-    setInvalidUrls(urlErrors);
   };
 
   const handleInputChange = (index: number, field: string, value: string) => {
@@ -111,37 +59,7 @@ const SetupPage: React.FC = () => {
         0
       );
     }
-
-    const updatedInvalidUrls = { ...invalidUrls };
-    if (field === "compnay domain") {
-      const isUrlValidCompany = isValidURLFORCompanyDomain(value);
-      if (!isUrlValidCompany) {
-        if (!updatedInvalidUrls[index]) updatedInvalidUrls[index] = {};
-        updatedInvalidUrls[index][field] = true;
-      } else {
-        if (updatedInvalidUrls[index]) {
-          delete updatedInvalidUrls[index][field];
-          if (Object.keys(updatedInvalidUrls[index]).length === 0) {
-            delete updatedInvalidUrls[index];
-          }
-        }
-      }
-    } else if (field === "linkdin") {
-      const isUrlValidLinkedIn = isValidURLFORLinkedIn(value);
-      if (!isUrlValidLinkedIn) {
-        if (!updatedInvalidUrls[index]) updatedInvalidUrls[index] = {};
-        updatedInvalidUrls[index][field] = true;
-      } else {
-        if (updatedInvalidUrls[index]) {
-          delete updatedInvalidUrls[index][field];
-          if (Object.keys(updatedInvalidUrls[index]).length === 0) {
-            delete updatedInvalidUrls[index];
-          }
-        }
-      }
-    }
-
-    setInvalidUrls(updatedInvalidUrls);
+    console.log("Updated empty fields:", updatedEmptyFields); // Debugging line
     setEmptyFields(updatedEmptyFields);
   };
 
@@ -151,6 +69,7 @@ const SetupPage: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button className="text-gray-500 hover:text-gray-800">
             <svg
+              xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth="1.5"
@@ -220,27 +139,25 @@ const SetupPage: React.FC = () => {
                         </div>
                       </th>
                     ))}
+                    <th className="text-left p-2">Edit</th>
                   </tr>
                 </thead>
                 <tbody>
                   {editableLeads.map((lead, index) => (
-                    <tr key={index}>
-                      <td className="border p-2">{index + 1}</td>
-                      {Object.entries(lead).map(([key, value]) => (
-                        <td key={key} className="border p-2">
+                    <tr key={index} className="border-b">
+                      <td className="p-2 border">{index + 1}</td>
+                      {Object.keys(lead).map((key) => (
+                        <td key={key} className="p-2 border">
                           <div className="relative">
                             <Input
                               value={lead[key] || ""}
                               onChange={(e) =>
                                 handleInputChange(index, key, e.target.value)
                               }
-                              className={`border w-full ${
-                                invalidUrls[index]?.[key]
-                                  ? "border-red-500"
-                                  : "border-gray-300"
-                              } ${!lead[key]?.trim() ? "bg-red-200" : ""}`}
+                              className={`border-none ${
+                                !lead[key]?.trim() ? "bg-red-200" : ""
+                              }`}
                             />
-
                             {!lead[key]?.trim() && (
                               <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                                 <span className="text-black-500">
@@ -256,11 +173,20 @@ const SetupPage: React.FC = () => {
                 </tbody>
               </table>
             ) : (
-              <p>No leads data available</p>
+              <p>No leads data available.</p>
             )}
           </div>
         </CardContent>
       </Card>
+      <div className="flex justify-end mt-6">
+        <Button
+          onClick={() => console.log("Continue clicked")}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+          disabled={editableLeads.length === 0}
+        >
+          Continue
+        </Button>
+      </div>
     </div>
   );
 };
