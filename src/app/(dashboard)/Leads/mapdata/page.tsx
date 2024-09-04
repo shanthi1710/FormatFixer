@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { RiInformationOffLine } from "react-icons/ri";
 
@@ -47,6 +48,7 @@ const SetupPage: React.FC = () => {
   const [invalidUrls, setInvalidUrls] = useState<{
     [index: number]: { [key: string]: boolean };
   }>({});
+  const [showOnlyInvalid, setShowOnlyInvalid] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -96,10 +98,17 @@ const SetupPage: React.FC = () => {
     setInvalidUrls(urlErrors);
   };
 
-  const handleInputChange = (index: number, field: string, value: string) => {
+  const handleInputChange = (
+    originalIndex: number,
+    field: string,
+    value: string
+  ) => {
     const updatedLeads = [...editableLeads];
-    const prevValue = updatedLeads[index][field];
-    updatedLeads[index] = { ...updatedLeads[index], [field]: value };
+    const prevValue = updatedLeads[originalIndex][field];
+    updatedLeads[originalIndex] = {
+      ...updatedLeads[originalIndex],
+      [field]: value,
+    };
     setEditableLeads(updatedLeads);
 
     const updatedEmptyFields = { ...emptyFields };
@@ -116,26 +125,28 @@ const SetupPage: React.FC = () => {
     if (field === "compnay domain") {
       const isUrlValidCompany = isValidURLFORCompanyDomain(value);
       if (!isUrlValidCompany) {
-        if (!updatedInvalidUrls[index]) updatedInvalidUrls[index] = {};
-        updatedInvalidUrls[index][field] = true;
+        if (!updatedInvalidUrls[originalIndex])
+          updatedInvalidUrls[originalIndex] = {};
+        updatedInvalidUrls[originalIndex][field] = true;
       } else {
-        if (updatedInvalidUrls[index]) {
-          delete updatedInvalidUrls[index][field];
-          if (Object.keys(updatedInvalidUrls[index]).length === 0) {
-            delete updatedInvalidUrls[index];
+        if (updatedInvalidUrls[originalIndex]) {
+          delete updatedInvalidUrls[originalIndex][field];
+          if (Object.keys(updatedInvalidUrls[originalIndex]).length === 0) {
+            delete updatedInvalidUrls[originalIndex];
           }
         }
       }
     } else if (field === "linkdin") {
       const isUrlValidLinkedIn = isValidURLFORLinkedIn(value);
       if (!isUrlValidLinkedIn) {
-        if (!updatedInvalidUrls[index]) updatedInvalidUrls[index] = {};
-        updatedInvalidUrls[index][field] = true;
+        if (!updatedInvalidUrls[originalIndex])
+          updatedInvalidUrls[originalIndex] = {};
+        updatedInvalidUrls[originalIndex][field] = true;
       } else {
-        if (updatedInvalidUrls[index]) {
-          delete updatedInvalidUrls[index][field];
-          if (Object.keys(updatedInvalidUrls[index]).length === 0) {
-            delete updatedInvalidUrls[index];
+        if (updatedInvalidUrls[originalIndex]) {
+          delete updatedInvalidUrls[originalIndex][field];
+          if (Object.keys(updatedInvalidUrls[originalIndex]).length === 0) {
+            delete updatedInvalidUrls[originalIndex];
           }
         }
       }
@@ -144,6 +155,18 @@ const SetupPage: React.FC = () => {
     setInvalidUrls(updatedInvalidUrls);
     setEmptyFields(updatedEmptyFields);
   };
+
+  const filteredLeads = showOnlyInvalid
+    ? editableLeads
+        .map((lead, index) => ({ lead, originalIndex: index }))
+        .filter(({ lead, originalIndex }) => {
+          const hasEmptyField = Object.keys(lead).some(
+            (key) => !lead[key]?.trim()
+          );
+          const hasInvalidUrl = !!invalidUrls[originalIndex];
+          return hasEmptyField || hasInvalidUrl;
+        })
+    : editableLeads.map((lead, index) => ({ lead, originalIndex: index }));
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
@@ -189,26 +212,28 @@ const SetupPage: React.FC = () => {
 
       <Card className="mb-8">
         <CardContent>
-          <div className="mb-8">
-            <h2 className="text-xl font-bold">
-              Set up imported custom variables
-            </h2>
-            <p>
-              Select how columns from your file map to contact columns needed
-              for enrichment.
-            </p>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold">Edit Values</h2>
+            <div className="flex items-center pt-3">
+              <span className="mr-2">Only show leads with invalid values</span>
+              <Switch
+                checked={showOnlyInvalid}
+                onCheckedChange={setShowOnlyInvalid}
+              />
+            </div>
           </div>
+          <p>Edit contact and correct only invalid values</p>
 
-          <div className="space-y-6">
-            {leads.length > 0 ? (
+          <div className="space-y-6 mt-6">
+            {filteredLeads.length > 0 ? (
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left p-2">SR</th>
+                    <th className="text-left p-2">#</th>
                     {Object.keys(leads[0]).map((key) => (
                       <th key={key} className="text-left p-2">
-                        <div className="flex items-center ">
-                          <span>{key}</span>
+                        <div className="flex items-center">
+                          {key}
                           {emptyFields[key] > 0 && (
                             <span className="ml-2 flex items-center text-red-500 gap-1 text-sm">
                               <RiInformationOffLine className="" />
@@ -223,25 +248,29 @@ const SetupPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {editableLeads.map((lead, index) => (
-                    <tr key={index}>
+                  {filteredLeads.map(({ lead, originalIndex }, index) => (
+                    <tr key={originalIndex}>
                       <td className="border p-2">{index + 1}</td>
                       {Object.entries(lead).map(([key, value]) => (
                         <td key={key} className="border p-2">
                           <div className="relative">
                             <Input
-                              value={lead[key] || ""}
+                              value={value || ""}
                               onChange={(e) =>
-                                handleInputChange(index, key, e.target.value)
+                                handleInputChange(
+                                  originalIndex,
+                                  key,
+                                  e.target.value
+                                )
                               }
                               className={`border w-full ${
-                                invalidUrls[index]?.[key]
+                                invalidUrls[originalIndex]?.[key]
                                   ? "border-red-500"
                                   : "border-gray-300"
-                              } ${!lead[key]?.trim() ? "bg-red-200" : ""}`}
+                              } ${!value?.trim() ? "bg-red-200" : ""}`}
                             />
 
-                            {!lead[key]?.trim() && (
+                            {!value?.trim() && (
                               <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                                 <span className="text-black-500">
                                   <IoInformationCircleOutline />
@@ -256,7 +285,7 @@ const SetupPage: React.FC = () => {
                 </tbody>
               </table>
             ) : (
-              <p>No leads data available</p>
+              <p>No leads to display.</p>
             )}
           </div>
         </CardContent>
