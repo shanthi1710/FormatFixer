@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-//import { useSearchParams } from "next/navigation";
-import { useSelector, UseSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { clearCsvData } from "../../../../lib/store/csvDataSlice";
 import { RootState } from "@/lib/store/store";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { RiInformationOffLine } from "react-icons/ri";
 
@@ -45,14 +46,13 @@ const isValidURLFORCompanyDomain = (url: string): boolean => {
 
 const SetupPage: React.FC = () => {
   const leads = useSelector((state: RootState) => state.csvData.data);
-  //const [leads, setLeads] = useState<Lead[]>([]);
+
   const [editableLeads, setEditableLeads] = useState<Lead[]>([]);
   const [emptyFields, setEmptyFields] = useState<{ [key: string]: number }>({});
   const [invalidUrls, setInvalidUrls] = useState<{
     [index: number]: { [key: string]: boolean };
   }>({});
   const [showOnlyInvalid, setShowOnlyInvalid] = useState(false);
-  //const searchParams = useSearchParams();
 
   useEffect(() => {
     if (leads.length) {
@@ -61,7 +61,6 @@ const SetupPage: React.FC = () => {
       validateUrls(leads);
     }
   }, [leads]);
-
   const calculateEmptyFields = (data: Lead[]) => {
     const counts: { [key: string]: number } = {};
     data.forEach((lead) => {
@@ -286,6 +285,18 @@ const SetupPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      <div className="flex justify-end mt-6">
+        <Button
+          onClick={() => {
+            console.log("Continue clicked");
+            console.log("Edited Leads Data:", editableLeads);
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+          disabled={editableLeads.length === 0}
+        >
+          Continue
+        </Button>
+      </div>
     </div>
   );
 };
