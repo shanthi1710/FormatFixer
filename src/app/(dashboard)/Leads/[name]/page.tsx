@@ -5,14 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { UploadCloud } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { setCsvData } from "@/lib/store/csvDataSlice";
 import Link from "next/link";
 import Papa from "papaparse";
+import { RootState } from "@/lib/store/store";
 
 const acceptableCSVFileTypes = ".csv";
 
 const UploadLeadList: React.FC = () => {
-  const [csvData, setCsvData] = useState<any[]>([]);
+  const dispatch = useDispatch();
   const router = useRouter();
+  const csvData = useSelector((state: RootState) => state.csvData.data);
 
   const onFileChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -23,17 +27,22 @@ const UploadLeadList: React.FC = () => {
       header: true,
       skipEmptyLines: true,
       complete: (result) => {
-        setCsvData(result.data);
-        //console.log(result.data);
+        const parsedData = result.data;
+        if (Array.isArray(parsedData)) {
+          dispatch(setCsvData(parsedData));
+        } else {
+          dispatch(setCsvData([]));
+        }
+      },
+      error: (error) => {
+        console.error("CSV parsing error: ", error);
+        dispatch(setCsvData([]));
       },
     });
   };
 
   const onContinueHandler = () => {
-    const queryParams = new URLSearchParams({
-      data: JSON.stringify(csvData),
-    }).toString();
-    router.push(`/Leads/mapdata?${queryParams}`);
+    router.push(`/Leads/mapdata`);
   };
 
   return (

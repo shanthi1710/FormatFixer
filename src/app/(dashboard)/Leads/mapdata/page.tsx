@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+//import { useSearchParams } from "next/navigation";
+import { useSelector, UseSelector } from "react-redux";
+import { RootState } from "@/lib/store/store";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,29 +44,23 @@ const isValidURLFORCompanyDomain = (url: string): boolean => {
 };
 
 const SetupPage: React.FC = () => {
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const leads = useSelector((state: RootState) => state.csvData.data);
+  //const [leads, setLeads] = useState<Lead[]>([]);
   const [editableLeads, setEditableLeads] = useState<Lead[]>([]);
   const [emptyFields, setEmptyFields] = useState<{ [key: string]: number }>({});
   const [invalidUrls, setInvalidUrls] = useState<{
     [index: number]: { [key: string]: boolean };
   }>({});
   const [showOnlyInvalid, setShowOnlyInvalid] = useState(false);
-  const searchParams = useSearchParams();
+  //const searchParams = useSearchParams();
 
   useEffect(() => {
-    const data = searchParams.get("data");
-    if (data) {
-      try {
-        const parsedData = JSON.parse(decodeURIComponent(data)) as Lead[];
-        setLeads(parsedData);
-        setEditableLeads(parsedData);
-        calculateEmptyFields(parsedData);
-        validateUrls(parsedData);
-      } catch (error) {
-        console.error("Failed to parse data:", error);
-      }
+    if (leads.length) {
+      setEditableLeads(leads);
+      calculateEmptyFields(leads);
+      validateUrls(leads);
     }
-  }, [searchParams]);
+  }, [leads]);
 
   const calculateEmptyFields = (data: Lead[]) => {
     const counts: { [key: string]: number } = {};
