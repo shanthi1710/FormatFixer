@@ -57,14 +57,18 @@ This may probably be due to the fact that the file may take a considerable amoun
 The time is spent when opening the file, parsing it and checking for the errors, thus slowing down the app.
 When lots of data is processed, the page containing the table may either stall or shut down.
  
-1.Frontend Optimizations:-
+1. Frontend Optimizations:-
+   
 File Upload in Chunks: If the given file is large, it is impractical to upload the whole file at once,to avoid these issues, the large file has to be divided into several small sub-files which are mainly referred to as chunks and then upload them one at a time. In this way, any file size can be transferred, and the completion time is short, thus users will not be required to wait for a long time.
+
 Suppose I have a single file of 100MB; then I break it into 10 sub files of 10MB each and try to upload them one at a time. When one chunk has not been put in the right way, one has to resend just the involved chunk not the entire file.
 Use Web Workers for Parsing: As far as I understand, parsing of large files can hamper the functionality of a browser and in the worst case scenario the app may appear to be unresponsive. When it comes to the parsing work, or file processing which may take some time, a Web Worker is initiated in the background to ensure the app is always active.
 You can consider the Web Workers as the “assistants” that perform the time-consuming computations off stage, so that they do not interrupt the primary application. For instance if a Web Worker is compiling a large file your app will remain fluid and users can see the progress being made.
+
 Show Data in Parts (Lazy Loading): For instance, if you get a large number of rows or column from big file, an attempt to load them may freeze the concerned page. However, these points can be made to load only the part of data as the requirement (lazy loading). You get more rows into view as the user scrolls to the bottom of the table.
 
-2.Backend (Server) Optimizations:-
+2. Backend (Server) Optimizations:-
+   
 Handle File Uploads in Chunks: On the server side, it must be provided that the files can be uploaded in small portions so that it is similar to the frontend. When all chunks are uploaded, the server merges all the chunks as a whole file.
 For instance, chunks ‘1’, ‘2’, ‘3’… up to chunk ‘10’ are sent by the frontend and are joined by the server to from the full file.
 Process Large Files in Batches: If you’re working with a large file it may take a long time to process or use lots of memory, whereas if you split the file into chunks it will be much quicker. For instance, while dealing with a file having 10,000 rows you can set 1,000 rows for each turn. This makes the work of the server to be light and when demand for these services increases, it can be adjusted easily to meet the challenge.
