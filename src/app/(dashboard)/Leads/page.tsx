@@ -6,7 +6,8 @@ import Link from "next/link";
 import leadsData from "../../../../data.json";
 
 export default function LeadLists() {
-  const [leads, setLeads] = useState(leadsData);
+  const [leads] = useState(leadsData);
+  const [setLeads] = useState(leadsData);
 
   return (
     <div className="p-8 bg-gradient-to-r from-gray-100 to-gray-200 min-h-screen">
@@ -14,7 +15,7 @@ export default function LeadLists() {
 
       <div className="mb-6">
         <Card className="border rounded-lg shadow-sm">
-          <CardContent className="flex space-x-4 py-4 bg-white shadow-md">
+          <CardContent className="flex space-x-4 py-4 bg-white shadow-sm">
             <Button
               variant="ghost"
               className="text-gray-800 hover:bg-gray-200 underline"

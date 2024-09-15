@@ -1,14 +1,15 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { clearCsvData } from "../../../../lib/store/csvDataSlice";
+import { FaArrowLeftLong } from "react-icons/fa6";
+//import { clearCsvData } from "../../../../lib/store/csvDataSlice";
 import { RootState } from "@/lib/store/store";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { RiInformationOffLine } from "react-icons/ri";
 
@@ -23,15 +24,18 @@ const isValidURLFORLinkedIn = (url: string): boolean => {
     const parsedUrl = new URL(url);
     const isHttpOrHttps =
       parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+
     const isLinkedInDomain = regex.test(parsedUrl.href);
+
     return isHttpOrHttps && isLinkedInDomain;
   } catch (e) {
     return false;
   }
 };
+//console.log("isValidURLFORLinkedIn:->", isValidURLFORLinkedIn);
 
 const isValidURLFORCompanyDomain = (url: string): boolean => {
-  const regex = /^(https?:\/\/)([\w.-]+\.)?[\w-]+\.com(\/.*)?$/i;
+  const regex = /^(https?:\/\/)?(www\.)?([\w.-]+\.)?[\w-]+\.com(\/.*)?$/i;
   if (!regex.test(url)) {
     return false;
   }
@@ -43,6 +47,7 @@ const isValidURLFORCompanyDomain = (url: string): boolean => {
     return false;
   }
 };
+//console.log("isValidURLFORCompanyDomain:->", isValidURLFORCompanyDomain);
 
 const SetupPage: React.FC = () => {
   const leads = useSelector((state: RootState) => state.csvData.data);
@@ -54,6 +59,8 @@ const SetupPage: React.FC = () => {
   }>({});
   const [showOnlyInvalid, setShowOnlyInvalid] = useState(false);
 
+  //console.log("emptyFields:-->", emptyFields);
+
   useEffect(() => {
     if (leads.length) {
       setEditableLeads(leads);
@@ -61,6 +68,7 @@ const SetupPage: React.FC = () => {
       validateUrls(leads);
     }
   }, [leads]);
+
   const calculateEmptyFields = (data: Lead[]) => {
     const counts: { [key: string]: number } = {};
     data.forEach((lead) => {
@@ -100,6 +108,7 @@ const SetupPage: React.FC = () => {
   ) => {
     const updatedLeads = [...editableLeads];
     const prevValue = updatedLeads[originalIndex][field];
+
     updatedLeads[originalIndex] = {
       ...updatedLeads[originalIndex],
       [field]: value,
@@ -158,6 +167,7 @@ const SetupPage: React.FC = () => {
           const hasEmptyField = Object.keys(lead).some(
             (key) => !lead[key]?.trim()
           );
+
           const hasInvalidUrl = !!invalidUrls[originalIndex];
           return hasEmptyField || hasInvalidUrl;
         })
@@ -167,20 +177,8 @@ const SetupPage: React.FC = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <button className="text-gray-500 hover:text-gray-800">
-            <svg
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
+          <button className="text-gray-500 hover:text-gray-800 ">
+            <FaArrowLeftLong />
           </button>
           <h1 className="text-2xl font-semibold text-gray-800">Sample Data</h1>
           <span className="py-1 px-3 bg-yellow-100 text-yellow-800 rounded-full text-sm">
@@ -197,7 +195,6 @@ const SetupPage: React.FC = () => {
           <Button variant="destructive">Delete Leads List</Button>
         </div>
       </div>
-
       <div className="mb-8">
         <Progress value={40} className="h-1 bg-purple-200" />
         <div className="flex justify-between text-sm text-gray-500 mt-2">
@@ -291,7 +288,7 @@ const SetupPage: React.FC = () => {
             console.log("Continue clicked");
             console.log("Edited Leads Data:", editableLeads);
           }}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+          className="px-4 py-2 bg-purple-500 text-black text-lg rounded-md"
           disabled={editableLeads.length === 0}
         >
           Continue

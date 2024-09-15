@@ -13,6 +13,8 @@ const csvDataSlice = createSlice({
   initialState,
   reducers: {
     setCsvData: (state, action: PayloadAction<any[]>) => {
+      //redux use Immer js library
+      //Immer will handle the mutation
       state.data = Array.isArray(action.payload) ? action.payload : [];
     },
     clearCsvData: (state) => {
