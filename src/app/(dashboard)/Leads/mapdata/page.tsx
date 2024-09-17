@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { RiInformationOffLine } from "react-icons/ri";
-
+import ToolTip from "@/components/ToolTip";
 type Lead = {
   [key: string]: string | undefined;
 };
@@ -229,14 +229,23 @@ const SetupPage: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left p-2">#</th>
+                    <th className="text-left p-2 border  border-slate-100 size-10 ml-3 bg-slate-200">
+                      Sr.No
+                    </th>
                     {Object.keys(leads[0]).map((key) => (
-                      <th key={key} className="text-left p-2">
+                      <th
+                        key={key}
+                        className="text-left p-2 border  border-slate-100 bg-slate-200"
+                      >
                         <div className="flex items-center">
                           {key}
                           {emptyFields[key] > 0 && (
-                            <span className="ml-2 flex items-center text-red-500 gap-1 text-sm">
-                              <RiInformationOffLine className="" />
+                            <span className="ml-2 flex items-center text-red-500 gap-1 text-sm z-50">
+                              <ToolTip
+                                tooltip={`${emptyFields[key]} leads have empty <br/> in their ${key}`}
+                              >
+                                <RiInformationOffLine />
+                              </ToolTip>
                               <span className="mr-1  gap-1">
                                 {emptyFields[key]}
                               </span>
@@ -250,9 +259,11 @@ const SetupPage: React.FC = () => {
                 <tbody>
                   {filteredLeads.map(({ lead, originalIndex }, index) => (
                     <tr key={originalIndex}>
-                      <td className="border p-2">{index + 1}</td>
+                      <td className="border border-slate-100 p-2 ml-3 bg-slate-200 ">
+                        {index + 1}
+                      </td>
                       {Object.entries(lead).map(([key, value]) => (
-                        <td key={key} className="border p-2">
+                        <td key={key} className="border p-0">
                           <div className="relative">
                             <Input
                               value={value || ""}
@@ -263,17 +274,31 @@ const SetupPage: React.FC = () => {
                                   e.target.value
                                 )
                               }
-                              className={`border w-full ${
-                                invalidUrls[originalIndex]?.[key]
-                                  ? "border-red-500"
-                                  : "border-gray-300"
-                              } ${!value?.trim() ? "bg-red-200" : ""}`}
+                              className={`border-none w-full pr-10 rounded-none outline-transparent ${
+                                !value?.trim() ? "bg-red-200" : ""
+                              }`}
                             />
 
                             {!value?.trim() && (
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <span className="text-black-500">
-                                  <IoInformationCircleOutline />
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-2 z-50">
+                                <span className="text-black cursor-pointer">
+                                  <ToolTip
+                                    tooltip={`Missing ${key}<br />Format Example: Doe`}
+                                  >
+                                    <IoInformationCircleOutline />
+                                  </ToolTip>
+                                </span>
+                              </div>
+                            )}
+
+                            {invalidUrls[originalIndex]?.[key] && (
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-2 z-50">
+                                <span className="text-black cursor-pointer">
+                                  <ToolTip
+                                    tooltip={`${key} URL is incorrect  `}
+                                  >
+                                    <IoInformationCircleOutline />
+                                  </ToolTip>
                                 </span>
                               </div>
                             )}
