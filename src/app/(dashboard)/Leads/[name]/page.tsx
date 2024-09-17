@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { UploadCloud } from "lucide-react";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { setCsvData } from "@/lib/store/csvDataSlice";
@@ -54,6 +53,9 @@ const UploadLeadList: React.FC = () => {
   const onContinueHandler = () => {
     router.push(`/Leads/mapdata`);
   };
+  const goBackHandler = () => {
+    router.push("/Leads");
+  };
 
   const onReuploadHandler = () => {
     setFileName(null);
@@ -71,7 +73,10 @@ const UploadLeadList: React.FC = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <button className="text-gray-500 hover:text-gray-800">
+          <button
+            className="text-gray-500 hover:text-gray-800"
+            onClick={goBackHandler}
+          >
             <FaArrowLeftLong />
           </button>
           <h1 className="text-2xl font-semibold text-gray-800">Upload</h1>
@@ -153,7 +158,7 @@ const UploadLeadList: React.FC = () => {
       <div className="text-center">
         <Button
           onClick={onContinueHandler}
-          className="mt-4 px-4 py-2 bg-purple-500 text-black rounded-md text-lg"
+          className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-md text-lg"
           disabled={csvData.length === 0}
         >
           Continue

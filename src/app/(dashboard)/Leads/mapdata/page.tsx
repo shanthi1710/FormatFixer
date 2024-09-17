@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 //import { clearCsvData } from "../../../../lib/store/csvDataSlice";
 import { RootState } from "@/lib/store/store";
 import { Progress } from "@/components/ui/progress";
@@ -51,7 +52,7 @@ const isValidURLFORCompanyDomain = (url: string): boolean => {
 
 const SetupPage: React.FC = () => {
   const leads = useSelector((state: RootState) => state.csvData.data);
-
+  const router = useRouter();
   const [editableLeads, setEditableLeads] = useState<Lead[]>([]);
   const [emptyFields, setEmptyFields] = useState<{ [key: string]: number }>({});
   const [invalidUrls, setInvalidUrls] = useState<{
@@ -60,6 +61,10 @@ const SetupPage: React.FC = () => {
   const [showOnlyInvalid, setShowOnlyInvalid] = useState(false);
 
   //console.log("emptyFields:-->", emptyFields);
+
+  const goBackHandler = () => {
+    router.push("/Leads/Lead%20List%202");
+  };
 
   useEffect(() => {
     if (leads.length) {
@@ -177,7 +182,10 @@ const SetupPage: React.FC = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <button className="text-gray-500 hover:text-gray-800 ">
+          <button
+            className="text-gray-500 hover:text-gray-800 "
+            onClick={goBackHandler}
+          >
             <FaArrowLeftLong />
           </button>
           <h1 className="text-2xl font-semibold text-gray-800">Sample Data</h1>
@@ -288,7 +296,7 @@ const SetupPage: React.FC = () => {
             console.log("Continue clicked");
             console.log("Edited Leads Data:", editableLeads);
           }}
-          className="px-4 py-2 bg-purple-500 text-black text-lg rounded-md"
+          className="px-4 py-2 bg-purple-500 text-white text-lg rounded-md"
           disabled={editableLeads.length === 0}
         >
           Continue
