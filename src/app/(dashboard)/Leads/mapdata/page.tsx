@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { RiInformationOffLine } from "react-icons/ri";
 import ToolTip from "@/components/ToolTip";
+
 type Lead = {
   [key: string]: string | undefined;
 };
@@ -146,6 +147,7 @@ const SetupPage: React.FC = () => {
         }
       }
     } else if (field === "linkdin") {
+      console.log(originalIndex);
       const isUrlValidLinkedIn = isValidURLFORLinkedIn(value);
       if (!isUrlValidLinkedIn) {
         if (!updatedInvalidUrls[originalIndex])
@@ -240,7 +242,7 @@ const SetupPage: React.FC = () => {
                         <div className="flex items-center">
                           {key}
                           {emptyFields[key] > 0 && (
-                            <span className="ml-2 flex items-center text-red-500 gap-1 text-sm z-50">
+                            <span className="ml-2 flex items-center text-red-500 gap-1 text-sm z-50 cursor-pointer">
                               <ToolTip
                                 tooltip={`${emptyFields[key]} leads have empty <br/> in their ${key}`}
                               >
@@ -283,21 +285,16 @@ const SetupPage: React.FC = () => {
                               }`}
                             />
 
-                            {!value?.trim() && (
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-2 z-50">
-                                <span className="text-black cursor-pointer">
-                                  <ToolTip tooltip={`Missing ${key}`}>
-                                    <IoInformationCircleOutline />
-                                  </ToolTip>
-                                </span>
-                              </div>
-                            )}
-
-                            {invalidUrls[originalIndex]?.[key] && (
+                            {(!value?.trim() ||
+                              invalidUrls[originalIndex]?.[key]) && (
                               <div className="absolute inset-y-0 right-0 flex items-center pr-2 z-50">
                                 <span className="text-black cursor-pointer">
                                   <ToolTip
-                                    tooltip={`${key} URL is incorrect  `}
+                                    tooltip={
+                                      value?.trim()
+                                        ? `${key} URL is incorrect`
+                                        : `Missing ${key}`
+                                    }
                                   >
                                     <IoInformationCircleOutline />
                                   </ToolTip>
