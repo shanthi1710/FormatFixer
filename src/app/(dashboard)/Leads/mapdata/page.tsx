@@ -276,15 +276,17 @@ const SetupPage: React.FC = () => {
                               }
                               className={`border-none w-full pr-10 rounded-none outline-transparent ${
                                 !value?.trim() ? "bg-red-200" : ""
+                              } ${
+                                invalidUrls[originalIndex]?.[key]
+                                  ? "bg-red-200"
+                                  : ""
                               }`}
                             />
 
                             {!value?.trim() && (
                               <div className="absolute inset-y-0 right-0 flex items-center pr-2 z-50">
                                 <span className="text-black cursor-pointer">
-                                  <ToolTip
-                                    tooltip={`Missing ${key}<br />Format Example: Doe`}
-                                  >
+                                  <ToolTip tooltip={`Missing ${key}`}>
                                     <IoInformationCircleOutline />
                                   </ToolTip>
                                 </span>
